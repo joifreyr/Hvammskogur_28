@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skorradalur summerhouse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #e9efee; --ink: #14302b; --muted: #4d6660;
+    --lake: #2b6a7a; --moss: #56784a; --panel: #f8fbfa; --line: #c5d3cf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1c1a; --ink: #e2eeea; --muted: #93aca5; --lake: #6db3c4; --moss: #93b784; --panel: #172826; --line: #2b423e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.6 system-ui, sans-serif; }
+  h1, h2, .temp { font-family: "Literata", Georgia, serif; font-weight: 600; }
+  main { max-width: 64rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  header { display: grid; gap: 1.5rem; grid-template-columns: 1.3fr 1fr; align-items: end; margin-bottom: 2.5rem; }
+  h1 { font-size: clamp(2.6rem, 8vw, 5rem); line-height: 1; margin: 0 0 .75rem; letter-spacing: -0.02em; }
+  header p { margin: 0; color: var(--muted); max-width: 32rem; }
+  .now { background: var(--lake); color: #fff; padding: 1.5rem; border-radius: 4px 28px 4px 28px; }
+  .temp { font-size: 4.2rem; line-height: 1; margin: 0; }
+  .now .desc { font-size: 1.15rem; margin: .25rem 0 1rem; }
+  .now dl { display: grid; grid-template-columns: auto 1fr; gap: .15rem 1rem; margin: 0; font-size: .95rem; }
+  .now dt { opacity: .8; } .now dd { margin: 0; }
+  section { margin-top: 2.5rem; }
+  h2 { font-size: 1.5rem; margin: 0 0 1rem; }
+  .cam { position: relative; aspect-ratio: 16/9; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; display: grid; place-items: center; text-align: center; color: var(--muted); }
+  .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cam small { display: block; margin-top: .5rem; }
+  .cam-note { margin: .5rem 0 0; font-size: .9rem; color: var(--muted); }
+  .days { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; }
+  .day { background: var(--panel); border: 1px solid var(--line); padding: .9rem; border-radius: 4px; }
+  .day b { display: block; } .day span { color: var(--muted); font-size: .9rem; display: block; }
+  .hi { color: var(--moss); font-weight: 600; }
+  .about p { max-width: 40rem; }
+  footer { margin-top: 3rem; font-size: .85rem; color: var(--muted); }
+  #status { color: var(--muted); font-size: .9rem; }
+  @media (max-width: 720px) { header { grid-template-columns: 1fr; } .days { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Skorradalur</h1>
+      <p>Our summerhouse by the lake. Check the weather before you drive up, and see the view right now.</p>
+    </div>
+    <div class="now" aria-live="polite">
+      <p class="temp" id="temp">--°</p>
+      <p class="desc" id="desc">Loading weather…</p>
+      <dl>
+        <dt>Feels like</dt><dd id="feels">--</dd>
+        <dt>Wind</dt><dd id="wind">--</dd>
+        <dt>Rain now</dt><dd id="rain">--</dd>
+      </dl>
+    </div>
+  </header>
+
+  <section>
+    <h2>The view right now</h2>
+    <div class="cam">
+      <div id="cam-empty">No camera yet<small>A photo will appear here every few minutes.</small></div>
+      <img id="cam-img" alt="Latest photo from the summerhouse camera" hidden>
+    </div>
+    <p class="cam-note" id="cam-note"></p>
+  </section>
+
+  <section>
+    <h2>Next five days</h2>
+    <div class="days" id="days"></div>
+    <p id="status"></p>
+  </section>
+
+  <section class="about">
+    <h2>About the house</h2>
+    <p>Write a few lines here: when it was built, who uses it, how to get there from Reykjavík, and where to find the key.</p>
+  </section>
+
+  <footer>Forecast from Open-Meteo for the valley (a model, not a measurement). Nearest official station: Hvanneyri.</footer>
+</main>
+
+<script>
+  // Approximate location of Skorradalur. Change to the exact house coordinates.
+  const LAT = 64.50, LON = -21.35;
+  // Where the camera uploads its latest photo. Change when the camera is set up.
+  const CAM_URL = "webcam/latest.jpg";
+
+  const codes = {0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Freezing fog",
+    51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",56:"Freezing drizzle",57:"Freezing drizzle",
+    61:"Light rain",63:"Rain",65:"Heavy rain",66:"Freezing rain",67:"Freezing rain",
+    71:"Light snow",73:"Snow",75:"Heavy snow",77:"Snow grains",80:"Showers",81:"Showers",82:"Heavy showers",
+    85:"Snow showers",86:"Heavy snow showers",95:"Thunderstorm",96:"Thunderstorm with hail",99:"Thunderstorm with hail"};
+  const $ = id => document.getElementById(id);
+  const compass = d => ["N","NE","E","SE","S","SW","W","NW"][Math.round(d / 45) % 8];
+
+  async function loadWeather() {
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON +
+      "&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation,weather_code" +
+      "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum" +
+      "&wind_speed_unit=ms&timezone=Atlantic%2FReykjavik&forecast_days=5";
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(r.status);
+      const d = await r.json(), c = d.current;
+      $("temp").textContent = Math.round(c.temperature_2m) + "°";
+      $("desc").textContent = codes[c.weather_code] || "";
+      $("feels").textContent = Math.round(c.apparent_temperature) + "°C";
+      $("wind").textContent = Math.round(c.wind_speed_10m) + " m/s " + compass(c.wind_direction_10m) +
+        " (gusts " + Math.round(c.wind_gusts_10m) + ")";
+      $("rain").textContent = c.precipitation + " mm";
+      $("days").innerHTML = d.daily.time.map((t, i) => {
+        const name = i === 0 ? "Today" : new Date(t).toLocaleDateString("en-GB", { weekday: "short" });
+        return '<div class="day"><b>' + name + '</b><span>' + (codes[d.daily.weather_code[i]] || "") + '</span>' +
+          '<span><span class="hi">' + Math.round(d.daily.temperature_2m_max[i]) + '°</span> / ' +
+          Math.round(d.daily.temperature_2m_min[i]) + '°</span>' +
+          '<span>' + d.daily.precipitation_sum[i] + ' mm</span></div>';
+      }).join("");
+      $("status").textContent = "";
+    } catch (e) {
+      $("desc").textContent = "Weather unavailable";
+      $("status").textContent = "Could not load the forecast. Check your connection and reload.";
+    }
+  }
+
+  function loadCam() {
+    const img = $("cam-img");
+    img.onload = () => {
+      img.hidden = false; $("cam-empty").hidden = true;
+      $("cam-note").textContent = "Updated " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    };
+    img.onerror = () => { img.hidden = true; $("cam-empty").hidden = false; };
+    img.src = CAM_URL + "?t=" + Date.now();
+  }
+
+  loadWeather(); loadCam();
+  setInterval(loadWeather, 15 * 60 * 1000);
+  setInterval(loadCam, 5 * 60 * 1000);
+</script>
+</body>
+</html>
