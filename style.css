@@ -1,0 +1,35 @@
+
+  :root {
+    --bg: #e9efee; --ink: #14302b; --muted: #4d6660;
+    --lake: #2b6a7a; --moss: #56784a; --panel: #f8fbfa; --line: #c5d3cf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1c1a; --ink: #e2eeea; --muted: #93aca5; --lake: #6db3c4; --moss: #93b784; --panel: #172826; --line: #2b423e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 1rem/1.6 system-ui, sans-serif; }
+  h1, h2, .temp { font-family: "Literata", Georgia, serif; font-weight: 600; }
+  main { max-width: 64rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  header { display: grid; gap: 1.5rem; grid-template-columns: 1.3fr 1fr; align-items: end; margin-bottom: 2.5rem; }
+  h1 { font-size: clamp(2.6rem, 8vw, 5rem); line-height: 1; margin: 0 0 .75rem; letter-spacing: -0.02em; }
+  header p { margin: 0; color: var(--muted); max-width: 32rem; }
+  .now { background: #2b6a7a; color: #fff; padding: 1.5rem; border-radius: 4px 28px 4px 28px; }
+  header .now p { color: inherit; max-width: none; }
+  .temp { font-size: 4.2rem; line-height: 1; margin: 0; }
+  .now .desc { font-size: 1.15rem; margin: .25rem 0 1rem; }
+  .now dl { display: grid; grid-template-columns: auto 1fr; gap: .15rem 1rem; margin: 0; font-size: .95rem; }
+  .now dt { opacity: .8; } .now dd { margin: 0; }
+  section { margin-top: 2.5rem; }
+  h2 { font-size: 1.5rem; margin: 0 0 1rem; }
+  .cam { position: relative; aspect-ratio: 16/9; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; display: grid; place-items: center; text-align: center; color: var(--muted); }
+  .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cam small { display: block; margin-top: .5rem; }
+  .cam-note { margin: .5rem 0 0; font-size: .9rem; color: var(--muted); }
+  .days { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; }
+  .day { background: var(--panel); border: 1px solid var(--line); padding: .9rem; border-radius: 4px; }
+  .day b { display: block; } .day span { color: var(--muted); font-size: .9rem; display: block; }
+  .hi { color: var(--moss); font-weight: 600; }
+  .about p { max-width: 40rem; }
+  footer { margin-top: 3rem; font-size: .85rem; color: var(--muted); }
+  #status { color: var(--muted); font-size: .9rem; }
+  @media (max-width: 720px) { header { grid-template-columns: 1fr; } .days { grid-template-columns: repeat(2, 1fr); } }
