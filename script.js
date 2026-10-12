@@ -11,15 +11,15 @@
   const $ = id => document.getElementById(id);
   const compass = d => ["N","NE","E","SE","S","SW","W","NW"][Math.round(d / 45) % 8];
   // Pick an emoji for a weather code. isDay is 1 by day, 0 at night.
-+ function icon(code, isDay) {
-+   if (code <= 1) return isDay ? "☀️" : "🌙";        // clear, mostly clear
-+   if (code === 2) return isDay ? "⛅" : "☁️";       // partly cloudy
-+   if (code === 3) return "☁️";                       // overcast
-+   if (code === 45 || code === 48) return "🌫️";       // fog
-+   if (code >= 95) return "⛈️";                       // thunderstorm
-+   if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "❄️"; // snow
-+   return "🌧️";                                       // everything else is rain or drizzle
-+ }
+ function icon(code, isDay) {
+   if (code <= 1) return isDay ? "☀️" : "🌙";        // clear, mostly clear
+   if (code === 2) return isDay ? "⛅" : "☁️";       // partly cloudy
+   if (code === 3) return "☁️";                       // overcast
+   if (code === 45 || code === 48) return "🌫️";       // fog
+   if (code >= 95) return "⛈️";                       // thunderstorm
+   if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "❄️"; // snow
+   return "🌧️";                                       // everything else is rain or drizzle
+ }
 
   async function loadWeather() {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON +
