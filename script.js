@@ -10,10 +10,20 @@
     85:"Snow showers",86:"Heavy snow showers",95:"Thunderstorm",96:"Thunderstorm with hail",99:"Thunderstorm with hail"};
   const $ = id => document.getElementById(id);
   const compass = d => ["N","NE","E","SE","S","SW","W","NW"][Math.round(d / 45) % 8];
+  // Pick an emoji for a weather code. isDay is 1 by day, 0 at night.
++ function icon(code, isDay) {
++   if (code <= 1) return isDay ? "☀️" : "🌙";        // clear, mostly clear
++   if (code === 2) return isDay ? "⛅" : "☁️";       // partly cloudy
++   if (code === 3) return "☁️";                       // overcast
++   if (code === 45 || code === 48) return "🌫️";       // fog
++   if (code >= 95) return "⛈️";                       // thunderstorm
++   if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "❄️"; // snow
++   return "🌧️";                                       // everything else is rain or drizzle
++ }
 
   async function loadWeather() {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON +
-      "&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation,weather_code" +
+      "&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation,weather_code,is_day" +
       "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum" +
       "&wind_speed_unit=ms&timezone=Atlantic%2FReykjavik&forecast_days=5";
     try {
@@ -21,7 +31,7 @@
       if (!r.ok) throw new Error(r.status);
       const d = await r.json(), c = d.current;
       $("temp").textContent = Math.round(c.temperature_2m) + "°";
-      $("desc").textContent = codes[c.weather_code] || "";
+      $("desc").textContent = icon(c.weather_code, c.is_day) + " " + (codes[c.weather_code] || "");
       $("feels").textContent = Math.round(c.apparent_temperature) + "°C";
       $("wind").textContent = Math.round(c.wind_speed_10m) + " m/s " + compass(c.wind_direction_10m) +
         " (gusts " + Math.round(c.wind_gusts_10m) + ")";
