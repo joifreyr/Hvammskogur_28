@@ -3,6 +3,8 @@
   // Where the camera uploads its latest photo. Change when the camera is set up.
   const CAM_URL = "webcam/latest.jpg";
 
+  let weather = null;   // latest API response, used by the hourly pop-up
+
   const codes = {0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",48:"Freezing fog",
     51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",56:"Freezing drizzle",57:"Freezing drizzle",
     61:"Light rain",63:"Rain",65:"Heavy rain",66:"Freezing rain",67:"Freezing rain",
@@ -21,15 +23,38 @@
    return "🌧️";                                       // everything else is rain or drizzle
  }
 
+   // Show the hourly forecast for one day (date like "2026-10-13") in the pop-up.
+  function showHours(date, title) {
+    if (!weather) return;                                // no data loaded yet
+    const h = weather.hourly;
+    const nowHour = weather.current.time.slice(0, 13);   // e.g. "2026-10-12T18"
+    let rows = "";
+    for (let i = 0; i < h.time.length; i++) {
+      if (!h.time[i].startsWith(date)) continue;         // a different day
+      if (h.time[i].slice(0, 13) < nowHour) continue;     // an hour already past
+      rows += '<li><span class="h-time">' + h.time[i].slice(11) + '</span>' +
+        '<span>' + icon(h.weather_code[i], h.is_day[i]) + '</span>' +
+        '<span class="h-temp">' + Math.round(h.temperature_2m[i]) + '°</span>' +
+        '<span>' + h.precipitation[i] + ' mm</span>' +
+        '<span>' + Math.round(h.wind_speed_10m[i]) + ' m/s ' + compass(h.wind_direction_10m[i]) +
+        ' (' + Math.round(h.wind_gusts_10m[i]) + ')</span></li>';
+    }
+    $("hourly-title").textContent = title;
+    $("hourly-list").innerHTML = rows;
+    $("hourly").showModal();
+  }
+
   async function loadWeather() {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=" + LAT + "&longitude=" + LON +
       "&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation,weather_code,is_day" +
+      "&hourly=temperature_2m,weather_code,precipitation,wind_speed_10m,wind_gusts_10m,wind_direction_10m,is_day" +
       "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum" +
       "&wind_speed_unit=ms&timezone=Atlantic%2FReykjavik&forecast_days=5";
     try {
       const r = await fetch(url);
       if (!r.ok) throw new Error(r.status);
       const d = await r.json(), c = d.current;
+      weather = d;
       $("temp").textContent = Math.round(c.temperature_2m) + "°";
       $("desc").textContent = icon(c.weather_code, c.is_day) + " " + (codes[c.weather_code] || "");
       $("feels").textContent = Math.round(c.apparent_temperature) + "°C";
