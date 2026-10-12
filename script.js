@@ -1,4 +1,4 @@
-// Approximate location of Skorradalur. Change to the exact house coordinates.
+// Location for the forecast, rounded to 2 decimals (about 1 km) for privacy.
   const LAT = 64.53, LON = -21.52;
   // Where the camera uploads its latest photo. Change when the camera is set up.
   const CAM_URL = "webcam/latest.jpg";
