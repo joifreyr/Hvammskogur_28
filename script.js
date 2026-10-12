@@ -38,7 +38,7 @@
       $("rain").textContent = c.precipitation + " mm";
       $("days").innerHTML = d.daily.time.map((t, i) => {
         const name = i === 0 ? "Today" : new Date(t).toLocaleDateString("en-GB", { weekday: "short" });
-        return '<div class="day"><b>' + name + '</b><span>' + (codes[d.daily.weather_code[i]] || "") + '</span>' +
+        return '<div class="day"><b>' + name + '</b><span>' + icon(d.daily.weather_code[i], 1) + ' ' + (codes[d.daily.weather_code[i]] || "") + '</span>' +
           '<span><span class="hi">' + Math.round(d.daily.temperature_2m_max[i]) + '°</span> / ' +
           Math.round(d.daily.temperature_2m_min[i]) + '°</span>' +
           '<span>' + d.daily.precipitation_sum[i] + ' mm</span></div>';
