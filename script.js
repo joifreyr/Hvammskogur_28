@@ -1,5 +1,4 @@
-<script>
-  // Approximate location of Skorradalur. Change to the exact house coordinates.
+// Approximate location of Skorradalur. Change to the exact house coordinates.
   const LAT = 64.50, LON = -21.35;
   // Where the camera uploads its latest photo. Change when the camera is set up.
   const CAM_URL = "webcam/latest.jpg";
@@ -54,4 +53,3 @@
   loadWeather(); loadCam();
   setInterval(loadWeather, 15 * 60 * 1000);
   setInterval(loadCam, 5 * 60 * 1000);
-</script>
