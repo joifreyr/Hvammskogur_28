@@ -191,7 +191,7 @@ header .now p {
   display: block;
 }
 
-.day span {
+.day > span {
   display: block;
   color: var(--muted);
   font-size: .9rem;
