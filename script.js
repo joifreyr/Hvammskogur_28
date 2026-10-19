@@ -92,6 +92,11 @@
     const box = e.target.closest(".day");
     if (box) showHours(box.dataset.date, box.dataset.title);
   });
+  
+  // Open today's remaining hours from the button in the blue panel.
+  $("today-hours").addEventListener("click", () => {
+    if (weather) showHours(weather.daily.time[0], "Today");
+  });
 
   loadWeather(); loadCam();
   loadWeather(); loadCam();
