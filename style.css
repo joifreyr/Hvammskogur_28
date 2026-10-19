@@ -207,6 +207,21 @@ header .now p {
   border: 1px solid var(--line);
   padding: .9rem;
   border-radius: 4px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Show that a box can be clicked */
+.day:hover {
+  border-color: var(--muted);
+}
+
+.day:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
 }
 
 .day b {
