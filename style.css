@@ -134,6 +134,27 @@ header .now p {
   margin: 0;
 }
 
+/* "Hourly forecast →" button in the panel */
+.now-link {
+  margin-top: 1rem;
+  padding: .4rem .8rem;
+  font: inherit;
+  font-size: .9rem;
+  color: #fff;
+  background: rgb(255 255 255 / .12);
+  border: 1px solid rgb(255 255 255 / .3);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.now-link:hover {
+  background: rgb(255 255 255 / .2);
+}
+
+.now-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
 
 /* ==========================================================
    WEBCAM  ("The view right now")
