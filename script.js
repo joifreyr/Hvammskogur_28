@@ -63,10 +63,11 @@
       $("rain").textContent = c.precipitation + " mm";
       $("days").innerHTML = d.daily.time.map((t, i) => {
         const name = i === 0 ? "Today" : new Date(t).toLocaleDateString("en-GB", { weekday: "short" });
-        return '<div class="day"><b>' + name + '</b><span>' + icon(d.daily.weather_code[i], 1) + ' ' + (codes[d.daily.weather_code[i]] || "") + '</span>' +
+        const title = i === 0 ? "Today" : new Date(t).toLocaleDateString("en-GB", { weekday: "long" });
+        return '<button type="button" class="day" data-date="' + t + '" data-title="' + title + '"><b>' + name + '</b><span>' + icon(d.daily.weather_code[i], 1) + ' ' + (codes[d.daily.weather_code[i]] || "") + '</span>' +
           '<span><span class="hi">' + Math.round(d.daily.temperature_2m_max[i]) + '°</span> / ' +
           Math.round(d.daily.temperature_2m_min[i]) + '°</span>' +
-          '<span>' + d.daily.precipitation_sum[i] + ' mm</span></div>';
+          '<span>' + d.daily.precipitation_sum[i] + ' mm</span></button>';
       }).join("");
       $("status").textContent = "";
     } catch (e) {
@@ -85,6 +86,14 @@
     img.src = CAM_URL + "?t=" + Date.now();
   }
 
+
+    // Open the hourly pop-up when a forecast box is clicked.
+  $("days").addEventListener("click", e => {
+    const box = e.target.closest(".day");
+    if (box) showHours(box.dataset.date, box.dataset.title);
+  });
+
+  loadWeather(); loadCam();
   loadWeather(); loadCam();
   setInterval(loadWeather, 15 * 60 * 1000);
   setInterval(loadCam, 5 * 60 * 1000);

@@ -2,6 +2,7 @@
    COLOURS  (change the look of the whole site here)
    ========================================================== */
 :root {
+    color-scheme: light dark;
   --bg: #e9efee;        /* page background */
   --ink: #14302b;       /* main text */
   --muted: #4d6660;     /* secondary text */
